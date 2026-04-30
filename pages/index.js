@@ -50,42 +50,42 @@ export default function Home() {
         body {
           margin: 0;
           font-family: Inter, sans-serif;
-          background: #0b1f24;
           color: white;
-        }
-
-        @keyframes gradientMove {
-          0% { background-position: 0% 50% }
-          50% { background-position: 100% 50% }
-          100% { background-position: 0% 50% }
         }
 
         @keyframes float {
           0% { transform: translateY(0) }
-          50% { transform: translateY(-15px) }
+          50% { transform: translateY(-12px) }
           100% { transform: translateY(0) }
-        }
-
-        @keyframes glowPulse {
-          0% { box-shadow: 0 0 10px #00ffc3 }
-          50% { box-shadow: 0 0 30px #00ffc3 }
-          100% { box-shadow: 0 0 10px #00ffc3 }
         }
 
         @keyframes spin {
           to { transform: rotate(360deg) }
         }
+
+        button:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 30px #00ffc3;
+        }
+
+        .card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 0 25px rgba(0,255,195,0.3);
+        }
       `}</style>
 
       {/* BACKGROUND */}
       <div style={styles.bg}></div>
+      <div style={styles.overlay}></div>
 
       {/* HERO */}
       <div style={styles.hero}>
         <div style={styles.left}>
           <h1 style={styles.title}>
             Smart Waste Detection <br />
-            <span style={styles.highlight}>for a Greener Future</span>
+            <span style={styles.highlight}>
+              for a Greener Future
+            </span>
           </h1>
 
           <p style={styles.sub}>
@@ -139,11 +139,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* CARDS */}
+      {/* CATEGORY CARDS */}
       <div style={styles.cards}>
         {["Plastic", "Paper", "Glass", "Metal", "Organic", "E-Waste"].map(
           (item, i) => (
-            <div key={i} style={styles.card}>
+            <div key={i} style={styles.card} className="card">
               <h4>{item}</h4>
               <p>AI-detected waste category</p>
             </div>
@@ -154,21 +154,22 @@ export default function Home() {
       {/* STATS */}
       <div style={styles.stats}>
         <div>
-          <h2>98.7%</h2>
+          <h2 style={styles.statNumber}>98.7%</h2>
           <p>Accuracy</p>
         </div>
         <div>
-          <h2>5000+</h2>
+          <h2 style={styles.statNumber}>5000+</h2>
           <p>Images Processed</p>
         </div>
         <div>
-          <h2>6</h2>
+          <h2 style={styles.statNumber}>6</h2>
           <p>Categories</p>
         </div>
       </div>
 
+      {/* FOOTER */}
       <footer style={styles.footer}>
-        Built by Aarush • Denisha • Dhairya • Gayatri • Zeel
+        Developed by Aarush • Denisha • Dhairya • Gayatri • Zeel
       </footer>
     </>
   );
@@ -179,18 +180,30 @@ const styles = {
     position: "fixed",
     width: "100%",
     height: "100%",
+    backgroundImage: `
+      linear-gradient(rgba(10,20,25,0.85), rgba(10,20,25,0.9)),
+      url("https://images.unsplash.com/photo-1532996122724-e3c354a0b15b")
+    `,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    zIndex: -2,
+  },
+
+  overlay: {
+    position: "fixed",
+    width: "100%",
+    height: "100%",
     background:
-      "linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#00ffc3)",
-    backgroundSize: "400% 400%",
-    animation: "gradientMove 15s ease infinite",
+      "radial-gradient(circle at 30% 30%, rgba(0,255,195,0.15), transparent 60%)",
     zIndex: -1,
   },
 
   hero: {
     display: "flex",
     justifyContent: "space-between",
-    padding: "80px",
+    padding: "100px 80px",
     flexWrap: "wrap",
+    gap: "40px",
   },
 
   left: {
@@ -198,7 +211,8 @@ const styles = {
   },
 
   title: {
-    fontSize: "3rem",
+    fontSize: "3.2rem",
+    fontWeight: "700",
     lineHeight: 1.2,
   },
 
@@ -208,18 +222,20 @@ const styles = {
   },
 
   sub: {
-    opacity: 0.7,
+    opacity: 0.8,
     marginTop: "10px",
   },
 
   button: {
     marginTop: "20px",
     padding: "14px 30px",
-    borderRadius: "10px",
+    borderRadius: "12px",
     border: "none",
-    background: "#00ffc3",
+    background: "linear-gradient(135deg, #00ffc3, #00bfa6)",
     fontWeight: "bold",
     cursor: "pointer",
+    boxShadow: "0 0 20px rgba(0,255,195,0.5)",
+    transition: "0.3s",
   },
 
   holo: {
@@ -233,9 +249,10 @@ const styles = {
     width: "360px",
     padding: "25px",
     borderRadius: "20px",
-    background: "rgba(255,255,255,0.05)",
+    background: "rgba(255,255,255,0.06)",
     backdropFilter: "blur(25px)",
-    border: "1px solid rgba(255,255,255,0.1)",
+    border: "1px solid rgba(255,255,255,0.15)",
+    boxShadow: "0 0 40px rgba(0,255,195,0.15)",
   },
 
   upload: {
@@ -289,7 +306,6 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    animation: "glowPulse 2s infinite",
   },
 
   tip: {
@@ -307,23 +323,30 @@ const styles = {
 
   card: {
     padding: "20px",
-    borderRadius: "15px",
-    background: "rgba(255,255,255,0.08)",
-    backdropFilter: "blur(10px)",
+    borderRadius: "18px",
+    background: "rgba(255,255,255,0.06)",
+    backdropFilter: "blur(15px)",
+    border: "1px solid rgba(255,255,255,0.1)",
     transition: "0.3s",
     cursor: "pointer",
+    minWidth: "160px",
   },
 
   stats: {
     display: "flex",
     justifyContent: "space-around",
-    marginTop: "50px",
+    marginTop: "70px",
     textAlign: "center",
+  },
+
+  statNumber: {
+    color: "#00ffc3",
+    textShadow: "0 0 15px #00ffc3",
   },
 
   footer: {
     textAlign: "center",
-    marginTop: "50px",
-    opacity: 0.5,
+    marginTop: "60px",
+    opacity: 0.6,
   },
 };
