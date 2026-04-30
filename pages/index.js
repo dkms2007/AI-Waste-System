@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [image, setImage] = useState(null);
@@ -6,63 +6,42 @@ export default function Home() {
   const [confidence, setConfidence] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const wasteInfo = {
-    PLASTIC: {
-      desc: "Non-biodegradable material that harms ecosystems.",
-      dispose: "Recycle in plastic bins. Avoid single-use plastics.",
-    },
-    PAPER: {
-      desc: "Biodegradable material made from wood pulp.",
-      dispose: "Recycle clean paper. Avoid wet or oily paper.",
-    },
-    GLASS: {
-      desc: "100% recyclable material.",
-      dispose: "Rinse and recycle. Do not mix with ceramics.",
-    },
-    METAL: {
-      desc: "Highly recyclable material like cans.",
-      dispose: "Clean and place in recycling bins.",
-    },
-    ORGANIC: {
-      desc: "Biodegradable waste like food scraps.",
-      dispose: "Compost or dispose in green bins.",
-    },
-    "E-WASTE": {
-      desc: "Electronic waste containing hazardous materials.",
-      dispose: "Take to authorized e-waste centers.",
-    },
-  };
-
   const handleUpload = async (e) => {
-    if (loading) return;
-
     const file = e.target.files[0];
     if (!file) return;
 
     setImage(URL.createObjectURL(file));
     setLoading(true);
     setResult("");
+    setConfidence(0);
 
     const reader = new FileReader();
+
     reader.onloadend = async () => {
-      const base64 = reader.result.split(",")[1];
+      const base64Image = reader.result.split(",")[1];
 
-      const res = await fetch(
-        "https://serverless.roboflow.com/waste-classification-lde94/2?api_key=NAKbDpcpDDmC5zBEczfN",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: base64,
+      try {
+        const res = await fetch(
+          "https://serverless.roboflow.com/waste-classification-lde94/2?api_key=NAKbDpcpDDmC5zBEczfN",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: base64Image,
+          }
+        );
+
+        const data = await res.json();
+
+        if (data.top) {
+          setResult(data.top.toUpperCase());
+          setConfidence((data.confidence * 100).toFixed(2));
+        } else {
+          setResult("UNABLE TO CLASSIFY");
         }
-      );
-
-      const data = await res.json();
-
-      if (data.top) {
-        setResult(data.top.toUpperCase());
-        setConfidence((data.confidence * 100).toFixed(1));
-      } else {
-        setResult("UNKNOWN");
+      } catch {
+        setResult("ERROR");
       }
 
       setLoading(false);
@@ -74,259 +53,256 @@ export default function Home() {
   return (
     <>
       <style>{`
-        body { margin:0; font-family:Inter, sans-serif; color:white; }
+        body {
+          margin: 0;
+          background: #0b0f1a;
+          font-family: 'Inter', sans-serif;
+        }
 
         @keyframes gradientMove {
-          0%{background-position:0% 50%}
-          50%{background-position:100% 50%}
-          100%{background-position:0% 50%}
+          0% {background-position: 0% 50%}
+          50% {background-position: 100% 50%}
+          100% {background-position: 0% 50%}
         }
 
         @keyframes float {
-          0%{transform:translateY(0)}
-          50%{transform:translateY(-10px)}
-          100%{transform:translateY(0)}
+          0%,100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
         }
 
-        @keyframes glowPulse {
-          0%{box-shadow:0 0 10px #00ffc3}
-          50%{box-shadow:0 0 30px #00ffc3}
-          100%{box-shadow:0 0 10px #00ffc3}
+        @keyframes glow {
+          0% { box-shadow: 0 0 10px #00ffcc; }
+          50% { box-shadow: 0 0 25px #00ffcc; }
+          100% { box-shadow: 0 0 10px #00ffcc; }
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes spin {
-          from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+
+        /* PARTICLES */
+        .particles span {
+          position: absolute;
+          display: block;
+          width: 4px;
+          height: 4px;
+          background: #00ffcc;
+          border-radius: 50%;
+          animation: float 6s infinite;
+          opacity: 0.4;
+        }
+
+        .particles span:nth-child(1){ top:20%; left:10%; animation-delay:0s;}
+        .particles span:nth-child(2){ top:40%; left:80%; animation-delay:1s;}
+        .particles span:nth-child(3){ top:70%; left:30%; animation-delay:2s;}
+        .particles span:nth-child(4){ top:60%; left:60%; animation-delay:3s;}
+        .particles span:nth-child(5){ top:30%; left:50%; animation-delay:4s;}
+
       `}</style>
 
-      <div style={styles.bg}></div>
+      <div style={styles.page}>
 
-      <div style={styles.container}>
-        
-        {/* LEFT SIDE */}
-        <div style={styles.left}>
-          <h1 style={styles.title}>
-            Smart Waste Detection <br />
-            <span style={{ color: "#00ffc3" }}>for a Greener Future</span>
-          </h1>
+        {/* BACKGROUND */}
+        <div style={styles.bg}></div>
 
-          <p style={styles.subtitle}>
-            AI-powered system that classifies waste and guides proper disposal.
-          </p>
-
-          <button style={styles.button}>🚀 Start Classifying</button>
-
-          <div style={styles.recycle}>♻️</div>
+        {/* PARTICLES */}
+        <div className="particles">
+          <span></span><span></span><span></span><span></span><span></span>
         </div>
 
-        {/* RIGHT SIDE PANEL */}
-        <div style={styles.panel}>
-          <h3>Upload Waste Image</h3>
+        {/* HERO */}
+        <div style={styles.hero}>
+          <h1 style={styles.title}>
+            Smart Waste Detection <br />
+            <span style={{ color: "#00ffcc" }}>for a Greener Future</span>
+          </h1>
+          <p style={styles.subtitle}>
+            AI-powered waste classification for smarter recycling decisions
+          </p>
+        </div>
+
+        {/* MAIN CARD */}
+        <div style={styles.card}>
+          <h2 style={styles.heading}>Upload Waste Image</h2>
 
           <label style={styles.upload}>
             <input type="file" hidden onChange={handleUpload} />
             Drag & Drop or Click
           </label>
 
-          {image && <img src={image} style={styles.preview} />}
+          {image && <img src={image} style={styles.image} />}
 
-          <button style={styles.analyze}>
-            {loading ? "Analyzing..." : "Analyze Waste"}
-          </button>
+          <button style={styles.analyzeBtn}>Analyze Waste</button>
 
-          {loading && <div style={styles.loader}></div>}
+          {loading && (
+            <div style={styles.loaderBox}>
+              <div style={styles.spinner}></div>
+              <p>Analyzing...</p>
+            </div>
+          )}
 
           {result && !loading && (
-            <>
-              <div style={styles.resultBox}>
-                <h2>{result}</h2>
+            <div style={styles.resultBox}>
+              <h2 style={styles.result}>{result}</h2>
+              <p>Confidence: {confidence}%</p>
 
-                <div style={styles.circle}>
-                  <span>{confidence}%</span>
-                </div>
+              <div style={styles.circle}>
+                {confidence}%
               </div>
 
-              {/* INSIGHT PANEL */}
-              <div style={styles.infoBox}>
-                <h4>About this waste</h4>
-                <p>{wasteInfo[result]?.desc || "No data available"}</p>
-
-                <h4>How to dispose</h4>
-                <p>{wasteInfo[result]?.dispose || "No guidance available"}</p>
-              </div>
-            </>
+              <p style={styles.tip}>
+                Dispose responsibly for a cleaner environment 🌍
+              </p>
+            </div>
           )}
         </div>
-      </div>
 
-      {/* CATEGORY CARDS */}
-      <div style={styles.cards}>
-        {["Plastic", "Paper", "Glass", "Metal", "Organic", "E-Waste"].map(
-          (item, i) => (
-            <div key={i} style={styles.card}>
-              <h4>{item}</h4>
-              <p>AI detected classification</p>
-            </div>
-          )
-        )}
-      </div>
+        {/* FOOTER */}
+        <footer style={styles.footer}>
+          ⚡ Built by Aarush • Denisha • Dhairya • Gayatri • Zeel
+        </footer>
 
-      {/* STATS */}
-      <div style={styles.stats}>
-        <div>
-          <h2>98.7%</h2>
-          <p>Accuracy</p>
-        </div>
-        <div>
-          <h2>5000+</h2>
-          <p>Images Processed</p>
-        </div>
-        <div>
-          <h2>6</h2>
-          <p>Categories</p>
-        </div>
       </div>
-
-      <footer style={styles.footer}>
-        ⚡ Built by Aarush • Denisha • Dhairya • Gayatri • Zeel
-      </footer>
     </>
   );
 }
 
 const styles = {
+  page: {
+    height: "100vh",
+    color: "white",
+    position: "relative",
+    overflow: "hidden",
+  },
+
   bg: {
-    position: "fixed",
-    width: "100%",
-    height: "100%",
+    position: "absolute",
+    width: "200%",
+    height: "200%",
     background:
-      "linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#00ffc3)",
+      "linear-gradient(-45deg, #0f2027, #203a43, #2c5364)",
     backgroundSize: "400% 400%",
-    animation: "gradientMove 15s infinite",
-    zIndex: -1,
+    animation: "gradientMove 20s ease infinite",
+    filter: "blur(80px)",
+    zIndex: 0,
   },
 
-  container: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "80px",
-  },
-
-  left: {
-    maxWidth: "50%",
+  hero: {
+    position: "relative",
+    textAlign: "center",
+    marginTop: "60px",
+    zIndex: 2,
+    animation: "fadeIn 1s ease",
   },
 
   title: {
-    fontSize: "3rem",
+    fontSize: "2.5rem",
+    fontWeight: "bold",
   },
 
   subtitle: {
     opacity: 0.7,
-  },
-
-  button: {
-    marginTop: "20px",
-    padding: "14px 25px",
-    background: "#00ffc3",
-    border: "none",
-    borderRadius: "10px",
-    cursor: "pointer",
-  },
-
-  recycle: {
-    fontSize: "90px",
-    marginTop: "30px",
-    animation: "float 4s infinite",
-  },
-
-  panel: {
-    width: "350px",
-    padding: "25px",
-    borderRadius: "20px",
-    background: "rgba(255,255,255,0.05)",
-    backdropFilter: "blur(20px)",
-  },
-
-  upload: {
-    padding: "10px",
-    background: "#00ffc3",
-    color: "#000",
-    borderRadius: "10px",
-    cursor: "pointer",
-    display: "block",
-  },
-
-  preview: {
-    width: "100%",
     marginTop: "10px",
-    borderRadius: "10px",
-  },
-
-  analyze: {
-    marginTop: "10px",
-    width: "100%",
-    padding: "10px",
-    borderRadius: "10px",
-    border: "none",
-    background: "#00ffc3",
-  },
-
-  loader: {
-    width: "30px",
-    height: "30px",
-    border: "3px solid white",
-    borderTop: "3px solid #00ffc3",
-    borderRadius: "50%",
-    animation: "spin 1s linear infinite",
-    margin: "10px auto",
-  },
-
-  resultBox: {
-    textAlign: "center",
-    marginTop: "15px",
-  },
-
-  circle: {
-    margin: "10px auto",
-    width: "80px",
-    height: "80px",
-    borderRadius: "50%",
-    border: "4px solid #00ffc3",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  infoBox: {
-    marginTop: "15px",
-    padding: "10px",
-    background: "rgba(255,255,255,0.08)",
-    borderRadius: "10px",
-  },
-
-  cards: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "20px",
-    marginTop: "40px",
   },
 
   card: {
-    padding: "20px",
-    background: "rgba(255,255,255,0.08)",
-    borderRadius: "10px",
+    position: "relative",
+    margin: "40px auto",
+    width: "350px",
+    padding: "30px",
+    borderRadius: "20px",
+    background: "rgba(255,255,255,0.05)",
+    backdropFilter: "blur(20px)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    textAlign: "center",
+    zIndex: 2,
+    animation: "fadeIn 1.2s ease",
   },
 
-  stats: {
+  heading: {
+    marginBottom: "15px",
+  },
+
+  upload: {
+    display: "block",
+    padding: "12px",
+    borderRadius: "10px",
+    background: "#00ffcc",
+    color: "#000",
+    cursor: "pointer",
+    marginBottom: "15px",
+    transition: "0.3s",
+  },
+
+  image: {
+    width: "100%",
+    borderRadius: "10px",
+    marginBottom: "15px",
+    animation: "float 4s ease-in-out infinite",
+  },
+
+  analyzeBtn: {
+    padding: "10px",
+    borderRadius: "10px",
+    background: "#00ffcc",
+    border: "none",
+    cursor: "pointer",
+    width: "100%",
+    fontWeight: "bold",
+    animation: "glow 2s infinite",
+  },
+
+  loaderBox: {
+    marginTop: "15px",
+  },
+
+  spinner: {
+    width: "30px",
+    height: "30px",
+    border: "3px solid rgba(255,255,255,0.3)",
+    borderTop: "3px solid #00ffcc",
+    borderRadius: "50%",
+    margin: "auto",
+    animation: "spin 1s linear infinite",
+  },
+
+  resultBox: {
+    marginTop: "20px",
+  },
+
+  result: {
+    fontSize: "1.5rem",
+    color: "#00ffcc",
+  },
+
+  circle: {
+    width: "80px",
+    height: "80px",
+    borderRadius: "50%",
+    border: "3px solid #00ffcc",
     display: "flex",
-    justifyContent: "space-around",
-    marginTop: "40px",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "10px auto",
+    animation: "glow 2s infinite",
+  },
+
+  tip: {
+    fontSize: "0.9rem",
+    opacity: 0.8,
   },
 
   footer: {
+    position: "absolute",
+    bottom: "10px",
+    width: "100%",
     textAlign: "center",
-    marginTop: "40px",
+    fontSize: "0.8rem",
     opacity: 0.5,
   },
 };
