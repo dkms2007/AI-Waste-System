@@ -1,10 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [image, setImage] = useState(null);
   const [result, setResult] = useState("");
   const [confidence, setConfidence] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  // 👇 Scroll reveal (NO LIB)
+  useEffect(() => {
+    const reveal = () => {
+      document.querySelectorAll(".reveal").forEach((el) => {
+        const top = el.getBoundingClientRect().top;
+        if (top < window.innerHeight - 100) {
+          el.style.opacity = 1;
+          el.style.transform = "translateY(0)";
+        }
+      });
+    };
+    window.addEventListener("scroll", reveal);
+    reveal();
+  }, []);
 
   const handleUpload = async (e) => {
     if (loading) return;
@@ -54,32 +69,33 @@ export default function Home() {
         }
 
         @keyframes float {
-          0% { transform: translateY(0) }
+          0%,100% { transform: translateY(0) }
           50% { transform: translateY(-12px) }
-          100% { transform: translateY(0) }
         }
 
         @keyframes spin {
           to { transform: rotate(360deg) }
         }
 
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(40px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes scan {
+          0% { top: -100% }
+          100% { top: 100% }
+        }
+
+        .reveal {
+          opacity: 0;
+          transform: translateY(40px);
+          transition: 1s ease;
         }
 
         button:hover {
           transform: scale(1.05);
-          box-shadow: 0 0 30px #00ffc3;
+          box-shadow: 0 0 35px #00ffc3;
         }
 
         .card:hover {
           transform: translateY(-10px);
           box-shadow: 0 0 30px rgba(0,255,195,0.4);
-        }
-
-        .section {
-          animation: fadeUp 1s ease;
         }
       `}</style>
 
@@ -88,17 +104,15 @@ export default function Home() {
       <div style={styles.overlay}></div>
 
       {/* HERO */}
-      <div style={{ ...styles.hero }} className="section">
+      <div style={styles.hero} className="reveal">
         <div style={styles.left}>
           <h1 style={styles.title}>
             Smart Waste Detection <br />
-            <span style={styles.highlight}>
-              for a Greener Future
-            </span>
+            <span style={styles.highlight}>for a Greener Future</span>
           </h1>
 
           <p style={styles.sub}>
-            Upload waste images and let AI instantly classify and guide proper disposal.
+            Upload waste images and let AI instantly classify and guide disposal.
           </p>
 
           <button
@@ -138,6 +152,9 @@ export default function Home() {
 
               <div style={styles.circle}>
                 <span>{confidence}%</span>
+
+                {/* SCAN EFFECT */}
+                <div style={styles.scan}></div>
               </div>
 
               <p style={styles.tip}>
@@ -149,7 +166,7 @@ export default function Home() {
       </div>
 
       {/* CATEGORIES */}
-      <div style={styles.sectionBox} className="section">
+      <div style={styles.sectionBox} className="reveal">
         <h2 style={styles.sectionTitle}>Waste Categories</h2>
 
         <div style={styles.cards}>
@@ -165,7 +182,7 @@ export default function Home() {
       </div>
 
       {/* STATS */}
-      <div style={styles.sectionBox} className="section">
+      <div style={styles.sectionBox} className="reveal">
         <h2 style={styles.sectionTitle}>System Performance</h2>
 
         <div style={styles.stats}>
@@ -184,7 +201,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* FOOTER */}
       <footer style={styles.footer}>
         Developed by Aarush • Denisha • Dhairya • Gayatri • Zeel
       </footer>
@@ -327,6 +343,17 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
+    overflow: "hidden",
+  },
+
+  scan: {
+    position: "absolute",
+    width: "100%",
+    height: "40%",
+    background:
+      "linear-gradient(transparent, rgba(0,255,195,0.4), transparent)",
+    animation: "scan 2s linear infinite",
   },
 
   tip: {
