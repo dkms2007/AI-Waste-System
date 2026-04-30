@@ -21,31 +21,37 @@ export default function Home() {
     reveal();
   }, []);
 
-  // Waste info (NEW)
+  // Waste Info
   const wasteInfo = {
     Plastic: {
+      icon: "🧴",
       impact: "Non-biodegradable, pollutes oceans and harms wildlife.",
-      disposal: "Recycle in designated plastic bins. Avoid single-use plastics.",
+      disposal: "Recycle in plastic bins. Avoid single-use plastics.",
     },
     Paper: {
-      impact: "Biodegradable but contributes to deforestation if wasted.",
-      disposal: "Recycle or compost if clean. Avoid coated paper.",
+      icon: "📄",
+      impact: "Biodegradable but contributes to deforestation.",
+      disposal: "Recycle or compost if clean.",
     },
     Glass: {
-      impact: "100% recyclable but can harm ecosystems if not disposed properly.",
-      disposal: "Rinse and place in glass recycling bins.",
+      icon: "🍾",
+      impact: "100% recyclable but harmful if dumped irresponsibly.",
+      disposal: "Rinse and recycle in glass bins.",
     },
     Metal: {
-      impact: "Mining impacts environment but metals are highly recyclable.",
-      disposal: "Recycle in metal bins after cleaning.",
+      icon: "🔩",
+      impact: "Mining impacts environment but highly recyclable.",
+      disposal: "Clean and recycle in metal bins.",
     },
     Organic: {
-      impact: "Decomposes naturally but emits methane in landfills.",
-      disposal: "Compost for eco-friendly waste management.",
+      icon: "🌱",
+      impact: "Produces methane in landfills if unmanaged.",
+      disposal: "Compost for eco-friendly disposal.",
     },
     "E-Waste": {
+      icon: "💻",
       impact: "Contains toxic materials harmful to soil and water.",
-      disposal: "Dispose at certified e-waste recycling centers.",
+      disposal: "Dispose at certified e-waste centers.",
     },
   };
 
@@ -90,7 +96,7 @@ export default function Home() {
   return (
     <>
       <style>{`
-        body { margin:0; font-family: Inter, sans-serif; color:white; }
+        body { margin:0; font-family:Inter,sans-serif; color:white; }
 
         @keyframes float {
           0%,100% { transform: translateY(0) }
@@ -125,16 +131,87 @@ export default function Home() {
       <div style={styles.bg}></div>
       <div style={styles.overlay}></div>
 
-      {/* HERO */}
+      {/* TITLE */}
+      <div style={styles.heroTop} className="reveal">
+        <h1 style={styles.title}>
+          Smart Waste Detection <br />
+          <span style={styles.highlight}>for a Greener Future</span>
+        </h1>
+        <p style={styles.sub}>
+          Understand waste impact before using AI classification.
+        </p>
+      </div>
+
+      {/* CATEGORIES */}
+      <div style={styles.sectionBox} className="reveal">
+        <h2 style={styles.sectionTitle}>Waste Categories</h2>
+
+        <div style={styles.cards}>
+          {Object.keys(wasteInfo).map((item, i) => {
+            const isActive = result === item.toUpperCase();
+
+            return (
+              <div
+                key={i}
+                style={{
+                  ...styles.card,
+                  background: isActive
+                    ? "rgba(0,255,195,0.15)"
+                    : "rgba(255,255,255,0.06)",
+                  border: isActive
+                    ? "1px solid #00ffc3"
+                    : "1px solid rgba(255,255,255,0.1)",
+                }}
+                className="card"
+              >
+                <div style={{ fontSize: "28px" }}>
+                  {wasteInfo[item].icon}
+                </div>
+
+                <h4>{item}</h4>
+
+                <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>
+                  {wasteInfo[item].impact}
+                </p>
+
+                <p style={{ fontSize: "0.75rem", color: "#00ffc3" }}>
+                  {wasteInfo[item].disposal}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* STATS */}
+      <div style={styles.sectionBox} className="reveal">
+        <h2 style={styles.sectionTitle}>System Performance</h2>
+
+        <div style={styles.stats}>
+          <div>
+            <h2 style={styles.statNumber}>98.7%</h2>
+            <p>Accuracy</p>
+          </div>
+          <div>
+            <h2 style={styles.statNumber}>5000+</h2>
+            <p>Images Processed</p>
+          </div>
+          <div>
+            <h2 style={styles.statNumber}>6</h2>
+            <p>Categories</p>
+          </div>
+        </div>
+      </div>
+
+      {/* HERO WITH UPLOAD */}
       <div style={styles.hero} className="reveal">
         <div style={styles.left}>
-          <h1 style={styles.title}>
-            Smart Waste Detection <br />
-            <span style={styles.highlight}>for a Greener Future</span>
-          </h1>
+          <h2 style={{ fontSize: "2.2rem" }}>
+            Upload Waste Image & Get Instant AI Prediction
+          </h2>
 
           <p style={styles.sub}>
-            Upload waste images and let AI instantly classify and guide disposal.
+            Our AI analyzes your image and provides classification instantly.
           </p>
 
           <button
@@ -145,7 +222,7 @@ export default function Home() {
                 .scrollIntoView({ behavior: "smooth" })
             }
           >
-            🚀 Start Classifying
+            🚀 Try Now
           </button>
 
           <div style={styles.holo}>♻️</div>
@@ -178,73 +255,10 @@ export default function Home() {
               </div>
 
               <p style={styles.tip}>
-                Dispose responsibly for a cleaner environment.
+                Follow the disposal guidance shown above.
               </p>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* CATEGORIES */}
-      <div style={styles.sectionBox} className="reveal">
-        <h2 style={styles.sectionTitle}>Waste Categories</h2>
-
-        <div style={styles.cards}>
-          {Object.keys(wasteInfo).map((item, i) => {
-            const isActive = result === item.toUpperCase();
-
-            return (
-              <div
-                key={i}
-                style={{
-                  ...styles.card,
-                  background: isActive
-                    ? "rgba(0,255,195,0.15)"
-                    : "rgba(255,255,255,0.06)",
-                  border: isActive
-                    ? "1px solid #00ffc3"
-                    : "1px solid rgba(255,255,255,0.1)",
-                }}
-                className="card"
-              >
-                <h4>{item}</h4>
-
-                <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>
-                  {wasteInfo[item].impact}
-                </p>
-
-                <p
-                  style={{
-                    fontSize: "0.75rem",
-                    marginTop: "6px",
-                    color: "#00ffc3",
-                  }}
-                >
-                  {wasteInfo[item].disposal}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* STATS */}
-      <div style={styles.sectionBox} className="reveal">
-        <h2 style={styles.sectionTitle}>System Performance</h2>
-
-        <div style={styles.stats}>
-          <div>
-            <h2 style={styles.statNumber}>98.7%</h2>
-            <p>Accuracy</p>
-          </div>
-          <div>
-            <h2 style={styles.statNumber}>5000+</h2>
-            <p>Images Processed</p>
-          </div>
-          <div>
-            <h2 style={styles.statNumber}>6</h2>
-            <p>Categories</p>
-          </div>
         </div>
       </div>
 
@@ -278,6 +292,11 @@ const styles = {
     zIndex: -1,
   },
 
+  heroTop: {
+    textAlign: "center",
+    paddingTop: "80px",
+  },
+
   hero: {
     display: "flex",
     justifyContent: "space-between",
@@ -295,34 +314,31 @@ const styles = {
     textShadow: "0 0 25px #00ffc3",
   },
 
-  sub: { opacity: 0.8, marginTop: "15px" },
+  sub: { opacity: 0.8, marginTop: "10px" },
 
   button: {
-    marginTop: "25px",
-    padding: "15px 35px",
-    borderRadius: "12px",
+    marginTop: "20px",
+    padding: "14px 30px",
+    borderRadius: "10px",
     border: "none",
-    background: "linear-gradient(135deg,#00ffc3,#00bfa6)",
+    background: "#00ffc3",
     fontWeight: "bold",
     cursor: "pointer",
-    boxShadow: "0 0 25px rgba(0,255,195,0.5)",
   },
 
   holo: {
-    fontSize: "110px",
-    marginTop: "40px",
+    fontSize: "100px",
+    marginTop: "30px",
     animation: "float 4s infinite",
-    textShadow: "0 0 50px #00ffc3",
+    textShadow: "0 0 40px #00ffc3",
   },
 
   panel: {
-    width: "370px",
+    width: "350px",
     padding: "25px",
     borderRadius: "20px",
-    background: "rgba(255,255,255,0.06)",
-    backdropFilter: "blur(25px)",
-    border: "1px solid rgba(255,255,255,0.15)",
-    boxShadow: "0 0 50px rgba(0,255,195,0.15)",
+    background: "rgba(255,255,255,0.05)",
+    backdropFilter: "blur(20px)",
   },
 
   upload: {
@@ -343,13 +359,12 @@ const styles = {
 
   analyze: {
     marginTop: "10px",
-    padding: "12px",
+    padding: "10px",
     background: "#00ffc3",
     border: "none",
     width: "100%",
     borderRadius: "10px",
     cursor: "pointer",
-    fontWeight: "bold",
   },
 
   loader: {
@@ -364,15 +379,12 @@ const styles = {
 
   resultBox: { marginTop: "15px", textAlign: "center" },
 
-  result: {
-    color: "#00ffc3",
-    textShadow: "0 0 15px #00ffc3",
-  },
+  result: { color: "#00ffc3" },
 
   circle: {
     margin: "10px auto",
-    width: "95px",
-    height: "95px",
+    width: "80px",
+    height: "80px",
     borderRadius: "50%",
     border: "4px solid #00ffc3",
     display: "flex",
@@ -410,11 +422,9 @@ const styles = {
 
   card: {
     padding: "20px",
-    borderRadius: "18px",
+    borderRadius: "15px",
     backdropFilter: "blur(15px)",
-    transition: "0.3s",
-    cursor: "pointer",
-    minWidth: "180px",
+    minWidth: "170px",
   },
 
   stats: {
@@ -425,7 +435,6 @@ const styles = {
 
   statNumber: {
     color: "#00ffc3",
-    textShadow: "0 0 15px #00ffc3",
   },
 
   footer: {
