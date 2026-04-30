@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function Home() {
   const [image, setImage] = useState(null);
@@ -6,20 +6,32 @@ export default function Home() {
   const [confidence, setConfidence] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // 👇 Scroll reveal (NO LIB)
-  useEffect(() => {
-    const reveal = () => {
-      document.querySelectorAll(".reveal").forEach((el) => {
-        const top = el.getBoundingClientRect().top;
-        if (top < window.innerHeight - 100) {
-          el.style.opacity = 1;
-          el.style.transform = "translateY(0)";
-        }
-      });
-    };
-    window.addEventListener("scroll", reveal);
-    reveal();
-  }, []);
+  const wasteInfo = {
+    PLASTIC: {
+      desc: "Non-biodegradable material that harms ecosystems.",
+      dispose: "Recycle in plastic bins. Avoid single-use plastics.",
+    },
+    PAPER: {
+      desc: "Biodegradable material made from wood pulp.",
+      dispose: "Recycle clean paper. Avoid wet or oily paper.",
+    },
+    GLASS: {
+      desc: "100% recyclable material.",
+      dispose: "Rinse and recycle. Do not mix with ceramics.",
+    },
+    METAL: {
+      desc: "Highly recyclable material like cans.",
+      dispose: "Clean and place in recycling bins.",
+    },
+    ORGANIC: {
+      desc: "Biodegradable waste like food scraps.",
+      dispose: "Compost or dispose in green bins.",
+    },
+    "E-WASTE": {
+      desc: "Electronic waste containing hazardous materials.",
+      dispose: "Take to authorized e-waste centers.",
+    },
+  };
 
   const handleUpload = async (e) => {
     if (loading) return;
@@ -62,75 +74,54 @@ export default function Home() {
   return (
     <>
       <style>{`
-        body {
-          margin: 0;
-          font-family: Inter, sans-serif;
-          color: white;
+        body { margin:0; font-family:Inter, sans-serif; color:white; }
+
+        @keyframes gradientMove {
+          0%{background-position:0% 50%}
+          50%{background-position:100% 50%}
+          100%{background-position:0% 50%}
         }
 
         @keyframes float {
-          0%,100% { transform: translateY(0) }
-          50% { transform: translateY(-12px) }
+          0%{transform:translateY(0)}
+          50%{transform:translateY(-10px)}
+          100%{transform:translateY(0)}
+        }
+
+        @keyframes glowPulse {
+          0%{box-shadow:0 0 10px #00ffc3}
+          50%{box-shadow:0 0 30px #00ffc3}
+          100%{box-shadow:0 0 10px #00ffc3}
         }
 
         @keyframes spin {
-          to { transform: rotate(360deg) }
-        }
-
-        @keyframes scan {
-          0% { top: -100% }
-          100% { top: 100% }
-        }
-
-        .reveal {
-          opacity: 0;
-          transform: translateY(40px);
-          transition: 1s ease;
-        }
-
-        button:hover {
-          transform: scale(1.05);
-          box-shadow: 0 0 35px #00ffc3;
-        }
-
-        .card:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 0 30px rgba(0,255,195,0.4);
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
 
-      {/* BACKGROUND */}
       <div style={styles.bg}></div>
-      <div style={styles.overlay}></div>
 
-      {/* HERO */}
-      <div style={styles.hero} className="reveal">
+      <div style={styles.container}>
+        
+        {/* LEFT SIDE */}
         <div style={styles.left}>
           <h1 style={styles.title}>
             Smart Waste Detection <br />
-            <span style={styles.highlight}>for a Greener Future</span>
+            <span style={{ color: "#00ffc3" }}>for a Greener Future</span>
           </h1>
 
-          <p style={styles.sub}>
-            Upload waste images and let AI instantly classify and guide disposal.
+          <p style={styles.subtitle}>
+            AI-powered system that classifies waste and guides proper disposal.
           </p>
 
-          <button
-            style={styles.button}
-            onClick={() =>
-              document
-                .getElementById("classifier")
-                .scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            🚀 Start Classifying
-          </button>
+          <button style={styles.button}>🚀 Start Classifying</button>
 
-          <div style={styles.holo}>♻️</div>
+          <div style={styles.recycle}>♻️</div>
         </div>
 
-        {/* PANEL */}
-        <div style={styles.panel} id="classifier">
+        {/* RIGHT SIDE PANEL */}
+        <div style={styles.panel}>
           <h3>Upload Waste Image</h3>
 
           <label style={styles.upload}>
@@ -147,62 +138,58 @@ export default function Home() {
           {loading && <div style={styles.loader}></div>}
 
           {result && !loading && (
-            <div style={styles.resultBox}>
-              <h2 style={styles.result}>{result}</h2>
+            <>
+              <div style={styles.resultBox}>
+                <h2>{result}</h2>
 
-              <div style={styles.circle}>
-                <span>{confidence}%</span>
-
-                {/* SCAN EFFECT */}
-                <div style={styles.scan}></div>
+                <div style={styles.circle}>
+                  <span>{confidence}%</span>
+                </div>
               </div>
 
-              <p style={styles.tip}>
-                Dispose responsibly for a cleaner environment.
-              </p>
-            </div>
+              {/* INSIGHT PANEL */}
+              <div style={styles.infoBox}>
+                <h4>About this waste</h4>
+                <p>{wasteInfo[result]?.desc || "No data available"}</p>
+
+                <h4>How to dispose</h4>
+                <p>{wasteInfo[result]?.dispose || "No guidance available"}</p>
+              </div>
+            </>
           )}
         </div>
       </div>
 
-      {/* CATEGORIES */}
-      <div style={styles.sectionBox} className="reveal">
-        <h2 style={styles.sectionTitle}>Waste Categories</h2>
-
-        <div style={styles.cards}>
-          {["Plastic", "Paper", "Glass", "Metal", "Organic", "E-Waste"].map(
-            (item, i) => (
-              <div key={i} style={styles.card} className="card">
-                <h4>{item}</h4>
-                <p>AI detected classification</p>
-              </div>
-            )
-          )}
-        </div>
+      {/* CATEGORY CARDS */}
+      <div style={styles.cards}>
+        {["Plastic", "Paper", "Glass", "Metal", "Organic", "E-Waste"].map(
+          (item, i) => (
+            <div key={i} style={styles.card}>
+              <h4>{item}</h4>
+              <p>AI detected classification</p>
+            </div>
+          )
+        )}
       </div>
 
       {/* STATS */}
-      <div style={styles.sectionBox} className="reveal">
-        <h2 style={styles.sectionTitle}>System Performance</h2>
-
-        <div style={styles.stats}>
-          <div>
-            <h2 style={styles.statNumber}>98.7%</h2>
-            <p>Accuracy</p>
-          </div>
-          <div>
-            <h2 style={styles.statNumber}>5000+</h2>
-            <p>Images Processed</p>
-          </div>
-          <div>
-            <h2 style={styles.statNumber}>6</h2>
-            <p>Categories</p>
-          </div>
+      <div style={styles.stats}>
+        <div>
+          <h2>98.7%</h2>
+          <p>Accuracy</p>
+        </div>
+        <div>
+          <h2>5000+</h2>
+          <p>Images Processed</p>
+        </div>
+        <div>
+          <h2>6</h2>
+          <p>Categories</p>
         </div>
       </div>
 
       <footer style={styles.footer}>
-        Developed by Aarush • Denisha • Dhairya • Gayatri • Zeel
+        ⚡ Built by Aarush • Denisha • Dhairya • Gayatri • Zeel
       </footer>
     </>
   );
@@ -213,111 +200,82 @@ const styles = {
     position: "fixed",
     width: "100%",
     height: "100%",
-    backgroundImage: `
-      linear-gradient(rgba(10,20,25,0.85), rgba(10,20,25,0.9)),
-      url("https://images.unsplash.com/photo-1532996122724-e3c354a0b15b")
-    `,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    zIndex: -2,
-  },
-
-  overlay: {
-    position: "fixed",
-    width: "100%",
-    height: "100%",
     background:
-      "radial-gradient(circle at 20% 20%, rgba(0,255,195,0.15), transparent 60%)",
+      "linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#00ffc3)",
+    backgroundSize: "400% 400%",
+    animation: "gradientMove 15s infinite",
     zIndex: -1,
   },
 
-  hero: {
+  container: {
     display: "flex",
     justifyContent: "space-between",
-    padding: "100px 80px",
-    flexWrap: "wrap",
-    gap: "40px",
+    padding: "80px",
   },
 
   left: {
-    maxWidth: "500px",
+    maxWidth: "50%",
   },
 
   title: {
-    fontSize: "3.4rem",
-    fontWeight: "700",
+    fontSize: "3rem",
   },
 
-  highlight: {
-    color: "#00ffc3",
-    textShadow: "0 0 25px #00ffc3",
-  },
-
-  sub: {
-    opacity: 0.8,
-    marginTop: "15px",
+  subtitle: {
+    opacity: 0.7,
   },
 
   button: {
-    marginTop: "25px",
-    padding: "15px 35px",
-    borderRadius: "12px",
+    marginTop: "20px",
+    padding: "14px 25px",
+    background: "#00ffc3",
     border: "none",
-    background: "linear-gradient(135deg,#00ffc3,#00bfa6)",
-    fontWeight: "bold",
+    borderRadius: "10px",
     cursor: "pointer",
-    boxShadow: "0 0 25px rgba(0,255,195,0.5)",
-    transition: "0.3s",
   },
 
-  holo: {
-    fontSize: "110px",
-    marginTop: "40px",
+  recycle: {
+    fontSize: "90px",
+    marginTop: "30px",
     animation: "float 4s infinite",
-    textShadow: "0 0 50px #00ffc3",
   },
 
   panel: {
-    width: "370px",
+    width: "350px",
     padding: "25px",
     borderRadius: "20px",
-    background: "rgba(255,255,255,0.06)",
-    backdropFilter: "blur(25px)",
-    border: "1px solid rgba(255,255,255,0.15)",
-    boxShadow: "0 0 50px rgba(0,255,195,0.15)",
+    background: "rgba(255,255,255,0.05)",
+    backdropFilter: "blur(20px)",
   },
 
   upload: {
-    padding: "12px",
+    padding: "10px",
     background: "#00ffc3",
     color: "#000",
     borderRadius: "10px",
     cursor: "pointer",
     display: "block",
-    marginBottom: "15px",
   },
 
   preview: {
     width: "100%",
-    borderRadius: "10px",
     marginTop: "10px",
+    borderRadius: "10px",
   },
 
   analyze: {
     marginTop: "10px",
-    padding: "12px",
-    background: "#00ffc3",
-    border: "none",
     width: "100%",
+    padding: "10px",
     borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: "bold",
+    border: "none",
+    background: "#00ffc3",
   },
 
   loader: {
     width: "30px",
     height: "30px",
-    border: "3px solid #fff",
+    border: "3px solid white",
     borderTop: "3px solid #00ffc3",
     borderRadius: "50%",
     animation: "spin 1s linear infinite",
@@ -325,85 +283,50 @@ const styles = {
   },
 
   resultBox: {
-    marginTop: "15px",
     textAlign: "center",
-  },
-
-  result: {
-    color: "#00ffc3",
-    textShadow: "0 0 15px #00ffc3",
+    marginTop: "15px",
   },
 
   circle: {
     margin: "10px auto",
-    width: "95px",
-    height: "95px",
+    width: "80px",
+    height: "80px",
     borderRadius: "50%",
     border: "4px solid #00ffc3",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    position: "relative",
-    overflow: "hidden",
   },
 
-  scan: {
-    position: "absolute",
-    width: "100%",
-    height: "40%",
-    background:
-      "linear-gradient(transparent, rgba(0,255,195,0.4), transparent)",
-    animation: "scan 2s linear infinite",
-  },
-
-  tip: {
-    fontSize: "0.9rem",
-    opacity: 0.7,
-  },
-
-  sectionBox: {
-    marginTop: "80px",
-    padding: "0 60px",
-  },
-
-  sectionTitle: {
-    textAlign: "center",
-    marginBottom: "30px",
-    fontSize: "2rem",
+  infoBox: {
+    marginTop: "15px",
+    padding: "10px",
+    background: "rgba(255,255,255,0.08)",
+    borderRadius: "10px",
   },
 
   cards: {
     display: "flex",
     justifyContent: "center",
     gap: "20px",
-    flexWrap: "wrap",
+    marginTop: "40px",
   },
 
   card: {
     padding: "20px",
-    borderRadius: "18px",
-    background: "rgba(255,255,255,0.06)",
-    backdropFilter: "blur(15px)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    transition: "0.3s",
-    cursor: "pointer",
-    minWidth: "160px",
+    background: "rgba(255,255,255,0.08)",
+    borderRadius: "10px",
   },
 
   stats: {
     display: "flex",
     justifyContent: "space-around",
-    textAlign: "center",
-  },
-
-  statNumber: {
-    color: "#00ffc3",
-    textShadow: "0 0 15px #00ffc3",
+    marginTop: "40px",
   },
 
   footer: {
     textAlign: "center",
-    marginTop: "60px",
-    opacity: 0.6,
+    marginTop: "40px",
+    opacity: 0.5,
   },
 };
