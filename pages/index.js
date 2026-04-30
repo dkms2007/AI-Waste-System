@@ -63,14 +63,23 @@ export default function Home() {
           to { transform: rotate(360deg) }
         }
 
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
         button:hover {
           transform: scale(1.05);
           box-shadow: 0 0 30px #00ffc3;
         }
 
         .card:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 0 25px rgba(0,255,195,0.3);
+          transform: translateY(-10px);
+          box-shadow: 0 0 30px rgba(0,255,195,0.4);
+        }
+
+        .section {
+          animation: fadeUp 1s ease;
         }
       `}</style>
 
@@ -79,7 +88,7 @@ export default function Home() {
       <div style={styles.overlay}></div>
 
       {/* HERO */}
-      <div style={styles.hero}>
+      <div style={{ ...styles.hero }} className="section">
         <div style={styles.left}>
           <h1 style={styles.title}>
             Smart Waste Detection <br />
@@ -89,7 +98,7 @@ export default function Home() {
           </h1>
 
           <p style={styles.sub}>
-            AI-powered classification system for sustainable waste management.
+            Upload waste images and let AI instantly classify and guide proper disposal.
           </p>
 
           <button
@@ -106,7 +115,7 @@ export default function Home() {
           <div style={styles.holo}>♻️</div>
         </div>
 
-        {/* RIGHT PANEL */}
+        {/* PANEL */}
         <div style={styles.panel} id="classifier">
           <h3>Upload Waste Image</h3>
 
@@ -125,45 +134,53 @@ export default function Home() {
 
           {result && !loading && (
             <div style={styles.resultBox}>
-              <h2 style={{ color: "#00ffc3" }}>{result}</h2>
+              <h2 style={styles.result}>{result}</h2>
 
               <div style={styles.circle}>
                 <span>{confidence}%</span>
               </div>
 
               <p style={styles.tip}>
-                Dispose responsibly for a sustainable environment.
+                Dispose responsibly for a cleaner environment.
               </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* CATEGORY CARDS */}
-      <div style={styles.cards}>
-        {["Plastic", "Paper", "Glass", "Metal", "Organic", "E-Waste"].map(
-          (item, i) => (
-            <div key={i} style={styles.card} className="card">
-              <h4>{item}</h4>
-              <p>AI-detected waste category</p>
-            </div>
-          )
-        )}
+      {/* CATEGORIES */}
+      <div style={styles.sectionBox} className="section">
+        <h2 style={styles.sectionTitle}>Waste Categories</h2>
+
+        <div style={styles.cards}>
+          {["Plastic", "Paper", "Glass", "Metal", "Organic", "E-Waste"].map(
+            (item, i) => (
+              <div key={i} style={styles.card} className="card">
+                <h4>{item}</h4>
+                <p>AI detected classification</p>
+              </div>
+            )
+          )}
+        </div>
       </div>
 
       {/* STATS */}
-      <div style={styles.stats}>
-        <div>
-          <h2 style={styles.statNumber}>98.7%</h2>
-          <p>Accuracy</p>
-        </div>
-        <div>
-          <h2 style={styles.statNumber}>5000+</h2>
-          <p>Images Processed</p>
-        </div>
-        <div>
-          <h2 style={styles.statNumber}>6</h2>
-          <p>Categories</p>
+      <div style={styles.sectionBox} className="section">
+        <h2 style={styles.sectionTitle}>System Performance</h2>
+
+        <div style={styles.stats}>
+          <div>
+            <h2 style={styles.statNumber}>98.7%</h2>
+            <p>Accuracy</p>
+          </div>
+          <div>
+            <h2 style={styles.statNumber}>5000+</h2>
+            <p>Images Processed</p>
+          </div>
+          <div>
+            <h2 style={styles.statNumber}>6</h2>
+            <p>Categories</p>
+          </div>
         </div>
       </div>
 
@@ -194,7 +211,7 @@ const styles = {
     width: "100%",
     height: "100%",
     background:
-      "radial-gradient(circle at 30% 30%, rgba(0,255,195,0.15), transparent 60%)",
+      "radial-gradient(circle at 20% 20%, rgba(0,255,195,0.15), transparent 60%)",
     zIndex: -1,
   },
 
@@ -211,48 +228,47 @@ const styles = {
   },
 
   title: {
-    fontSize: "3.2rem",
+    fontSize: "3.4rem",
     fontWeight: "700",
-    lineHeight: 1.2,
   },
 
   highlight: {
     color: "#00ffc3",
-    textShadow: "0 0 20px #00ffc3",
+    textShadow: "0 0 25px #00ffc3",
   },
 
   sub: {
     opacity: 0.8,
-    marginTop: "10px",
+    marginTop: "15px",
   },
 
   button: {
-    marginTop: "20px",
-    padding: "14px 30px",
+    marginTop: "25px",
+    padding: "15px 35px",
     borderRadius: "12px",
     border: "none",
-    background: "linear-gradient(135deg, #00ffc3, #00bfa6)",
+    background: "linear-gradient(135deg,#00ffc3,#00bfa6)",
     fontWeight: "bold",
     cursor: "pointer",
-    boxShadow: "0 0 20px rgba(0,255,195,0.5)",
+    boxShadow: "0 0 25px rgba(0,255,195,0.5)",
     transition: "0.3s",
   },
 
   holo: {
-    fontSize: "100px",
+    fontSize: "110px",
     marginTop: "40px",
     animation: "float 4s infinite",
-    textShadow: "0 0 40px #00ffc3",
+    textShadow: "0 0 50px #00ffc3",
   },
 
   panel: {
-    width: "360px",
+    width: "370px",
     padding: "25px",
     borderRadius: "20px",
     background: "rgba(255,255,255,0.06)",
     backdropFilter: "blur(25px)",
     border: "1px solid rgba(255,255,255,0.15)",
-    boxShadow: "0 0 40px rgba(0,255,195,0.15)",
+    boxShadow: "0 0 50px rgba(0,255,195,0.15)",
   },
 
   upload: {
@@ -297,10 +313,15 @@ const styles = {
     textAlign: "center",
   },
 
+  result: {
+    color: "#00ffc3",
+    textShadow: "0 0 15px #00ffc3",
+  },
+
   circle: {
     margin: "10px auto",
-    width: "90px",
-    height: "90px",
+    width: "95px",
+    height: "95px",
     borderRadius: "50%",
     border: "4px solid #00ffc3",
     display: "flex",
@@ -313,12 +334,22 @@ const styles = {
     opacity: 0.7,
   },
 
+  sectionBox: {
+    marginTop: "80px",
+    padding: "0 60px",
+  },
+
+  sectionTitle: {
+    textAlign: "center",
+    marginBottom: "30px",
+    fontSize: "2rem",
+  },
+
   cards: {
     display: "flex",
     justifyContent: "center",
     gap: "20px",
     flexWrap: "wrap",
-    marginTop: "50px",
   },
 
   card: {
@@ -335,7 +366,6 @@ const styles = {
   stats: {
     display: "flex",
     justifyContent: "space-around",
-    marginTop: "70px",
     textAlign: "center",
   },
 
