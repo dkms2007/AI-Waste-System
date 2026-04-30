@@ -47,34 +47,33 @@ export default function Home() {
   return (
     <>
       <style>{`
-        body { margin:0; font-family:Inter, sans-serif; }
+        body {
+          margin: 0;
+          font-family: Inter, sans-serif;
+          background: #0b1f24;
+          color: white;
+        }
 
         @keyframes gradientMove {
-          0%{background-position:0% 50%}
-          50%{background-position:100% 50%}
-          100%{background-position:0% 50%}
+          0% { background-position: 0% 50% }
+          50% { background-position: 100% 50% }
+          100% { background-position: 0% 50% }
         }
 
         @keyframes float {
-          0%{transform:translateY(0)}
-          50%{transform:translateY(-12px)}
-          100%{transform:translateY(0)}
+          0% { transform: translateY(0) }
+          50% { transform: translateY(-15px) }
+          100% { transform: translateY(0) }
         }
 
-        @keyframes glow {
-          0%{box-shadow:0 0 10px #00ffc3}
-          50%{box-shadow:0 0 30px #00ffc3}
-          100%{box-shadow:0 0 10px #00ffc3}
-        }
-
-        @keyframes fadeIn {
-          from{opacity:0; transform:translateY(20px)}
-          to{opacity:1; transform:translateY(0)}
+        @keyframes glowPulse {
+          0% { box-shadow: 0 0 10px #00ffc3 }
+          50% { box-shadow: 0 0 30px #00ffc3 }
+          100% { box-shadow: 0 0 10px #00ffc3 }
         }
 
         @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          to { transform: rotate(360deg) }
         }
       `}</style>
 
@@ -86,7 +85,7 @@ export default function Home() {
         <div style={styles.left}>
           <h1 style={styles.title}>
             Smart Waste Detection <br />
-            <span style={{ color: "#00ffc3" }}>for a Greener Future</span>
+            <span style={styles.highlight}>for a Greener Future</span>
           </h1>
 
           <p style={styles.sub}>
@@ -104,14 +103,11 @@ export default function Home() {
             🚀 Start Classifying
           </button>
 
-          {/* FAKE HOLOGRAM */}
-          <div style={styles.holo}>
-            ♻️
-          </div>
+          <div style={styles.holo}>♻️</div>
         </div>
 
         {/* RIGHT PANEL */}
-        <div style={styles.panel}>
+        <div style={styles.panel} id="classifier">
           <h3>Upload Waste Image</h3>
 
           <label style={styles.upload}>
@@ -129,10 +125,12 @@ export default function Home() {
 
           {result && !loading && (
             <div style={styles.resultBox}>
-              <h2>{result}</h2>
+              <h2 style={{ color: "#00ffc3" }}>{result}</h2>
+
               <div style={styles.circle}>
                 <span>{confidence}%</span>
               </div>
+
               <p style={styles.tip}>
                 Dispose responsibly for a sustainable environment.
               </p>
@@ -141,7 +139,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* CATEGORY CARDS */}
+      {/* CARDS */}
       <div style={styles.cards}>
         {["Plastic", "Paper", "Glass", "Metal", "Organic", "E-Waste"].map(
           (item, i) => (
@@ -170,7 +168,7 @@ export default function Home() {
       </div>
 
       <footer style={styles.footer}>
-        ⚡ Built by Aarush • Denisha • Dhairya • Gayatri • Zeel
+        Built by Aarush • Denisha • Dhairya • Gayatri • Zeel
       </footer>
     </>
   );
@@ -184,7 +182,7 @@ const styles = {
     background:
       "linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#00ffc3)",
     backgroundSize: "400% 400%",
-    animation: "gradientMove 15s infinite",
+    animation: "gradientMove 15s ease infinite",
     zIndex: -1,
   },
 
@@ -192,16 +190,21 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     padding: "80px",
-    color: "white",
+    flexWrap: "wrap",
   },
 
   left: {
-    maxWidth: "50%",
+    maxWidth: "500px",
   },
 
   title: {
     fontSize: "3rem",
-    lineHeight: "1.2",
+    lineHeight: 1.2,
+  },
+
+  highlight: {
+    color: "#00ffc3",
+    textShadow: "0 0 20px #00ffc3",
   },
 
   sub: {
@@ -227,11 +230,12 @@ const styles = {
   },
 
   panel: {
-    width: "350px",
+    width: "360px",
     padding: "25px",
     borderRadius: "20px",
     background: "rgba(255,255,255,0.05)",
-    backdropFilter: "blur(20px)",
+    backdropFilter: "blur(25px)",
+    border: "1px solid rgba(255,255,255,0.1)",
   },
 
   upload: {
@@ -252,12 +256,13 @@ const styles = {
 
   analyze: {
     marginTop: "10px",
-    padding: "10px",
+    padding: "12px",
     background: "#00ffc3",
     border: "none",
     width: "100%",
     borderRadius: "10px",
     cursor: "pointer",
+    fontWeight: "bold",
   },
 
   loader: {
@@ -277,13 +282,14 @@ const styles = {
 
   circle: {
     margin: "10px auto",
-    width: "80px",
-    height: "80px",
+    width: "90px",
+    height: "90px",
     borderRadius: "50%",
     border: "4px solid #00ffc3",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    animation: "glowPulse 2s infinite",
   },
 
   tip: {
@@ -295,6 +301,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     gap: "20px",
+    flexWrap: "wrap",
     marginTop: "50px",
   },
 
@@ -302,14 +309,16 @@ const styles = {
     padding: "20px",
     borderRadius: "15px",
     background: "rgba(255,255,255,0.08)",
+    backdropFilter: "blur(10px)",
     transition: "0.3s",
+    cursor: "pointer",
   },
 
   stats: {
     display: "flex",
     justifyContent: "space-around",
     marginTop: "50px",
-    color: "white",
+    textAlign: "center",
   },
 
   footer: {
