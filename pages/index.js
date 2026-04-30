@@ -6,7 +6,7 @@ export default function Home() {
   const [confidence, setConfidence] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // 👇 Scroll reveal (NO LIB)
+  // Scroll reveal
   useEffect(() => {
     const reveal = () => {
       document.querySelectorAll(".reveal").forEach((el) => {
@@ -20,6 +20,34 @@ export default function Home() {
     window.addEventListener("scroll", reveal);
     reveal();
   }, []);
+
+  // Waste info (NEW)
+  const wasteInfo = {
+    Plastic: {
+      impact: "Non-biodegradable, pollutes oceans and harms wildlife.",
+      disposal: "Recycle in designated plastic bins. Avoid single-use plastics.",
+    },
+    Paper: {
+      impact: "Biodegradable but contributes to deforestation if wasted.",
+      disposal: "Recycle or compost if clean. Avoid coated paper.",
+    },
+    Glass: {
+      impact: "100% recyclable but can harm ecosystems if not disposed properly.",
+      disposal: "Rinse and place in glass recycling bins.",
+    },
+    Metal: {
+      impact: "Mining impacts environment but metals are highly recyclable.",
+      disposal: "Recycle in metal bins after cleaning.",
+    },
+    Organic: {
+      impact: "Decomposes naturally but emits methane in landfills.",
+      disposal: "Compost for eco-friendly waste management.",
+    },
+    "E-Waste": {
+      impact: "Contains toxic materials harmful to soil and water.",
+      disposal: "Dispose at certified e-waste recycling centers.",
+    },
+  };
 
   const handleUpload = async (e) => {
     if (loading) return;
@@ -62,20 +90,14 @@ export default function Home() {
   return (
     <>
       <style>{`
-        body {
-          margin: 0;
-          font-family: Inter, sans-serif;
-          color: white;
-        }
+        body { margin:0; font-family: Inter, sans-serif; color:white; }
 
         @keyframes float {
           0%,100% { transform: translateY(0) }
           50% { transform: translateY(-12px) }
         }
 
-        @keyframes spin {
-          to { transform: rotate(360deg) }
-        }
+        @keyframes spin { to { transform: rotate(360deg) } }
 
         @keyframes scan {
           0% { top: -100% }
@@ -152,8 +174,6 @@ export default function Home() {
 
               <div style={styles.circle}>
                 <span>{confidence}%</span>
-
-                {/* SCAN EFFECT */}
                 <div style={styles.scan}></div>
               </div>
 
@@ -170,14 +190,41 @@ export default function Home() {
         <h2 style={styles.sectionTitle}>Waste Categories</h2>
 
         <div style={styles.cards}>
-          {["Plastic", "Paper", "Glass", "Metal", "Organic", "E-Waste"].map(
-            (item, i) => (
-              <div key={i} style={styles.card} className="card">
+          {Object.keys(wasteInfo).map((item, i) => {
+            const isActive = result === item.toUpperCase();
+
+            return (
+              <div
+                key={i}
+                style={{
+                  ...styles.card,
+                  background: isActive
+                    ? "rgba(0,255,195,0.15)"
+                    : "rgba(255,255,255,0.06)",
+                  border: isActive
+                    ? "1px solid #00ffc3"
+                    : "1px solid rgba(255,255,255,0.1)",
+                }}
+                className="card"
+              >
                 <h4>{item}</h4>
-                <p>AI detected classification</p>
+
+                <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>
+                  {wasteInfo[item].impact}
+                </p>
+
+                <p
+                  style={{
+                    fontSize: "0.75rem",
+                    marginTop: "6px",
+                    color: "#00ffc3",
+                  }}
+                >
+                  {wasteInfo[item].disposal}
+                </p>
               </div>
-            )
-          )}
+            );
+          })}
         </div>
       </div>
 
@@ -239,24 +286,16 @@ const styles = {
     gap: "40px",
   },
 
-  left: {
-    maxWidth: "500px",
-  },
+  left: { maxWidth: "500px" },
 
-  title: {
-    fontSize: "3.4rem",
-    fontWeight: "700",
-  },
+  title: { fontSize: "3.4rem", fontWeight: "700" },
 
   highlight: {
     color: "#00ffc3",
     textShadow: "0 0 25px #00ffc3",
   },
 
-  sub: {
-    opacity: 0.8,
-    marginTop: "15px",
-  },
+  sub: { opacity: 0.8, marginTop: "15px" },
 
   button: {
     marginTop: "25px",
@@ -267,7 +306,6 @@ const styles = {
     fontWeight: "bold",
     cursor: "pointer",
     boxShadow: "0 0 25px rgba(0,255,195,0.5)",
-    transition: "0.3s",
   },
 
   holo: {
@@ -324,10 +362,7 @@ const styles = {
     margin: "10px auto",
   },
 
-  resultBox: {
-    marginTop: "15px",
-    textAlign: "center",
-  },
+  resultBox: { marginTop: "15px", textAlign: "center" },
 
   result: {
     color: "#00ffc3",
@@ -356,15 +391,9 @@ const styles = {
     animation: "scan 2s linear infinite",
   },
 
-  tip: {
-    fontSize: "0.9rem",
-    opacity: 0.7,
-  },
+  tip: { fontSize: "0.9rem", opacity: 0.7 },
 
-  sectionBox: {
-    marginTop: "80px",
-    padding: "0 60px",
-  },
+  sectionBox: { marginTop: "80px", padding: "0 60px" },
 
   sectionTitle: {
     textAlign: "center",
@@ -382,12 +411,10 @@ const styles = {
   card: {
     padding: "20px",
     borderRadius: "18px",
-    background: "rgba(255,255,255,0.06)",
     backdropFilter: "blur(15px)",
-    border: "1px solid rgba(255,255,255,0.1)",
     transition: "0.3s",
     cursor: "pointer",
-    minWidth: "160px",
+    minWidth: "180px",
   },
 
   stats: {
