@@ -6,20 +6,19 @@ export default function Home() {
   const [confidence, setConfidence] = useState(0);
   const [loading, setLoading] = useState(false);
   const [info, setInfo] = useState("");
+  const [started, setStarted] = useState(false);
 
-  // 🧠 Waste Info Database (FAST, NO API DELAY)
   const wasteInfo = {
-    paper: "📄 Paper Waste\n\nRecyclable material made from wood pulp.\n\n♻️ Dispose: Put in dry recycling bin. Keep it clean and dry.",
-    plastic: "🧴 Plastic Waste\n\nNon-biodegradable synthetic material.\n\n♻️ Dispose: Recycle if possible. Avoid burning. Use plastic collection centers.",
-    metal: "🔩 Metal Waste\n\nIncludes aluminum, steel etc.\n\n♻️ Dispose: Send to scrap dealer or recycling facility.",
-    glass: "🍾 Glass Waste\n\n100% recyclable material.\n\n♻️ Dispose: Place in glass recycling bins. Do not mix with regular waste.",
-    organic: "🍃 Organic Waste\n\nBiodegradable food/natural waste.\n\n♻️ Dispose: Compost it for eco-friendly use.",
-    e_waste: "💻 E-Waste\n\nElectronic waste like phones, batteries.\n\n♻️ Dispose: Take to authorized e-waste centers.",
-    cardboard: "📦 Cardboard\n\nRecyclable packaging material.\n\n♻️ Dispose: Flatten and put in dry waste recycling.",
-    trash: "🚮 General Waste\n\nNon-recyclable material.\n\n♻️ Dispose: Use landfill bin responsibly.",
+    paper: "📄 Paper Waste\n\nRecyclable material.\n\n♻️ Dispose: Dry recycling bin.",
+    plastic: "🧴 Plastic Waste\n\nNon-biodegradable.\n\n♻️ Dispose: Recycling center.",
+    metal: "🔩 Metal Waste\n\nHighly recyclable.\n\n♻️ Dispose: Scrap dealer.",
+    glass: "🍾 Glass Waste\n\n100% recyclable.\n\n♻️ Dispose: Glass bin.",
+    organic: "🍃 Organic Waste\n\nBiodegradable.\n\n♻️ Dispose: Compost.",
+    e_waste: "💻 E-Waste\n\nHazardous electronics.\n\n♻️ Dispose: Authorized center.",
+    cardboard: "📦 Cardboard\n\nRecyclable.\n\n♻️ Dispose: Flatten + recycle.",
+    trash: "🚮 General Waste\n\nNon-recyclable.\n\n♻️ Dispose: Landfill bin.",
   };
 
-  // ⚡ Image Resize (SPEED BOOST)
   const resizeImage = (file) => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -27,14 +26,10 @@ export default function Home() {
       const ctx = canvas.getContext("2d");
 
       img.onload = () => {
-        const size = 224;
-        canvas.width = size;
-        canvas.height = size;
-        ctx.drawImage(img, 0, 0, size, size);
-
-        canvas.toBlob((blob) => {
-          resolve(blob);
-        }, "image/jpeg", 0.7);
+        canvas.width = 224;
+        canvas.height = 224;
+        ctx.drawImage(img, 0, 0, 224, 224);
+        canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.7);
       };
 
       img.src = URL.createObjectURL(file);
@@ -50,204 +45,207 @@ export default function Home() {
     setImage(URL.createObjectURL(file));
     setLoading(true);
     setResult("");
-    setConfidence(0);
     setInfo("");
 
-    try {
-      const compressed = await resizeImage(file);
+    const compressed = await resizeImage(file);
 
-      const reader = new FileReader();
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Image = reader.result.split(",")[1];
 
-      reader.onloadend = async () => {
-        const base64Image = reader.result.split(",")[1];
-
-        const controller = new AbortController();
-        setTimeout(() => controller.abort(), 15000);
-
-        const res = await fetch(
-          "https://serverless.roboflow.com/waste-classification-lde94/2?api_key=NAKbDpcpDDmC5zBEczfN",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: base64Image,
-            signal: controller.signal,
-          }
-        );
-
-        const data = await res.json();
-
-        if (data.top) {
-          const clean = data.top.toLowerCase();
-          setResult("♻️ " + clean.replace("_", " ").toUpperCase());
-          setConfidence((data.confidence * 100).toFixed(2));
-
-          // 🧠 Instant info load (NO delay)
-          setInfo(wasteInfo[clean] || "No info available");
-        } else {
-          setResult("Unable to classify");
+      const res = await fetch(
+        "https://serverless.roboflow.com/waste-classification-lde94/2?api_key=NAKbDpcpDDmC5zBEczfN",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: base64Image,
         }
+      );
 
-        setLoading(false);
-      };
+      const data = await res.json();
 
-      reader.readAsDataURL(compressed);
-    } catch (err) {
-      console.error(err);
-      setResult("Error");
+      if (data.top) {
+        const clean = data.top.toLowerCase();
+        setResult("♻️ " + clean.replace("_", " ").toUpperCase());
+        setConfidence((data.confidence * 100).toFixed(2));
+        setInfo(wasteInfo[clean]);
+      } else {
+        setResult("Unable to classify");
+      }
+
       setLoading(false);
-    }
+    };
+
+    reader.readAsDataURL(compressed);
   };
 
   return (
     <>
       <style>{`
+        body { margin: 0; font-family: Inter, sans-serif; }
+
         @keyframes gradientMove {
           0% { background-position: 0% 50% }
           50% { background-position: 100% 50% }
           100% { background-position: 0% 50% }
         }
-        @keyframes float {
-          0% { transform: translateY(0px) }
-          50% { transform: translateY(-10px) }
-          100% { transform: translateY(0px) }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(40px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes glowPulse {
-          0% { box-shadow: 0 0 10px #00ffcc }
-          50% { box-shadow: 0 0 25px #00ffcc }
-          100% { box-shadow: 0 0 10px #00ffcc }
         }
       `}</style>
 
-      <div style={styles.page}>
-        <div style={styles.bg}></div>
+      <div style={styles.bg}></div>
 
-        <div style={styles.wrapper}>
-          {/* LEFT CARD */}
+      {/* HERO */}
+      {!started && (
+        <div style={styles.hero}>
+          <h1 style={styles.heroTitle}>♻️ Waste Classifier AI</h1>
+          <p style={styles.heroSub}>
+            Intelligent Waste Detection & Sustainable Disposal Guidance
+          </p>
+
+          <button style={styles.startBtn} onClick={() => setStarted(true)}>
+            🚀 Start Classifying
+          </button>
+        </div>
+      )}
+
+      {/* MAIN APP */}
+      {started && (
+        <div style={styles.container}>
+          {/* LEFT */}
           <div style={styles.card}>
-            <h1 style={styles.title}>♻️ Waste Classifier AI</h1>
-            <p style={styles.subtitle}>Smart Vision • Clean Future</p>
+            <h2>Upload Waste Image</h2>
 
             <label style={styles.upload}>
               <input type="file" hidden onChange={handleUpload} />
-              ⬆ Upload Waste Image
+              ⬆ Upload
             </label>
 
-            {image && (
-              <div style={styles.previewBox}>
-                <img src={image} style={styles.image} />
-              </div>
-            )}
+            {image && <img src={image} style={styles.image} />}
 
-            {loading && (
-              <div style={styles.loaderBox}>
-                <div style={styles.spinner}></div>
-                <p>Analyzing with AI...</p>
-              </div>
-            )}
+            {loading && <p>🔄 Analyzing...</p>}
 
             {result && !loading && (
-              <div style={styles.resultBox}>
-                <h2 style={styles.result}>{result}</h2>
-                <p style={styles.conf}>Confidence: {confidence}%</p>
+              <>
+                <h2>{result}</h2>
+                <p>Confidence: {confidence}%</p>
 
                 <div style={styles.bar}>
                   <div
-                    style={{
-                      ...styles.fill,
-                      width: `${confidence}%`,
-                    }}
+                    style={{ ...styles.fill, width: `${confidence}%` }}
                   ></div>
                 </div>
-              </div>
+              </>
             )}
           </div>
 
-          {/* RIGHT PANEL */}
-          {info && !loading && (
-            <div style={styles.infoCard}>
-              <h2>♻️ Disposal Guide</h2>
+          {/* RIGHT */}
+          {info && (
+            <div style={styles.info}>
+              <h3>🌱 Disposal Guide</h3>
               <p style={{ whiteSpace: "pre-line" }}>{info}</p>
             </div>
           )}
         </div>
-
-        <footer style={styles.footer}>
-          ⚡ Built by Aarush • Denisha • Dhairya • Gayatri • Zeel
-        </footer>
-      </div>
+      )}
     </>
   );
 }
 
 const styles = {
-  page: { height: "100vh", color: "white", position: "relative" },
+  bg: {
+    position: "fixed",
+    width: "100%",
+    height: "100%",
+    background:
+      "linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #00c9ff)",
+    backgroundSize: "400% 400%",
+    animation: "gradientMove 15s infinite",
+    zIndex: -1,
+  },
 
-  wrapper: {
+  hero: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
+    color: "white",
+    animation: "fadeUp 1s ease",
+  },
+
+  heroTitle: {
+    fontSize: "3rem",
+    textShadow: "0 0 30px #00ffcc",
+  },
+
+  heroSub: {
+    opacity: 0.7,
+    marginBottom: "20px",
+  },
+
+  startBtn: {
+    padding: "14px 30px",
+    borderRadius: "10px",
+    border: "none",
+    background: "#00ffcc",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
+  container: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     gap: "30px",
-    height: "100%",
-  },
-
-  bg: {
-    position: "absolute",
-    width: "200%",
-    height: "200%",
-    background:
-      "radial-gradient(circle at 20% 20%, #00ffcc33, transparent), linear-gradient(-45deg, #0f2027, #203a43, #2c5364)",
-    animation: "gradientMove 18s infinite",
-    filter: "blur(80px)",
+    height: "100vh",
+    color: "white",
   },
 
   card: {
-    width: "400px",
-    padding: "35px",
-    borderRadius: "25px",
-    background: "rgba(255,255,255,0.06)",
+    padding: "30px",
+    borderRadius: "20px",
+    background: "rgba(255,255,255,0.08)",
     backdropFilter: "blur(20px)",
+    width: "350px",
     textAlign: "center",
   },
 
-  infoCard: {
-    width: "300px",
+  info: {
+    width: "280px",
     padding: "25px",
     borderRadius: "20px",
-    background: "rgba(0,255,200,0.08)",
+    background: "rgba(0,255,200,0.1)",
     backdropFilter: "blur(15px)",
-    border: "1px solid rgba(0,255,200,0.3)",
   },
 
   upload: {
-    padding: "12px 20px",
+    padding: "10px 20px",
     background: "#00ffcc",
     color: "#000",
-    borderRadius: "10px",
+    borderRadius: "8px",
     cursor: "pointer",
   },
 
   image: {
     width: "100%",
+    marginTop: "15px",
     borderRadius: "15px",
-    animation: "float 4s infinite",
+  },
+
+  bar: {
+    height: "8px",
+    background: "#333",
+    borderRadius: "5px",
+    marginTop: "10px",
   },
 
   fill: {
     height: "100%",
     background: "#00ffcc",
-  },
-
-  footer: {
-    position: "absolute",
-    bottom: "10px",
-    width: "100%",
-    textAlign: "center",
-    opacity: 0.5,
   },
 };
