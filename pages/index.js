@@ -1,23 +1,46 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function Home() {
   const [image, setImage] = useState(null);
   const [result, setResult] = useState("");
   const [confidence, setConfidence] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [info, setInfo] = useState("");
-  const [started, setStarted] = useState(false);
 
-  const wasteInfo = {
-    paper: "📄 Paper Waste\n\nRecyclable material.\n\n♻️ Dispose: Dry recycling bin.",
-    plastic: "🧴 Plastic Waste\n\nNon-biodegradable.\n\n♻️ Dispose: Recycling center.",
-    metal: "🔩 Metal Waste\n\nHighly recyclable.\n\n♻️ Dispose: Scrap dealer.",
-    glass: "🍾 Glass Waste\n\n100% recyclable.\n\n♻️ Dispose: Glass bin.",
-    organic: "🍃 Organic Waste\n\nBiodegradable.\n\n♻️ Dispose: Compost.",
-    e_waste: "💻 E-Waste\n\nHazardous electronics.\n\n♻️ Dispose: Authorized center.",
-    cardboard: "📦 Cardboard\n\nRecyclable.\n\n♻️ Dispose: Flatten + recycle.",
-    trash: "🚮 General Waste\n\nNon-recyclable.\n\n♻️ Dispose: Landfill bin.",
-  };
+  const classifyRef = useRef(null);
+  const descRef = useRef(null);
+
+  const wasteTypes = [
+    {
+      name: "Plastic",
+      img: "https://images.unsplash.com/photo-1581579188871-45ea61f2a5a8",
+      desc: "Non-biodegradable material. Takes hundreds of years to decompose.",
+    },
+    {
+      name: "Paper",
+      img: "https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0",
+      desc: "Biodegradable and recyclable material made from wood pulp.",
+    },
+    {
+      name: "Glass",
+      img: "https://images.unsplash.com/photo-1604908176997-43195d99d36d",
+      desc: "100% recyclable material that can be reused indefinitely.",
+    },
+    {
+      name: "Metal",
+      img: "https://images.unsplash.com/photo-1581092919534-7c4c6b28c13d",
+      desc: "Highly recyclable materials like aluminum and steel.",
+    },
+    {
+      name: "Organic",
+      img: "https://images.unsplash.com/photo-1587049352851-8d4e89133924",
+      desc: "Biodegradable waste like food scraps and plant matter.",
+    },
+    {
+      name: "E-Waste",
+      img: "https://images.unsplash.com/photo-1581091870622-1e7d3d3b2f4d",
+      desc: "Electronic waste that requires specialized disposal.",
+    },
+  ];
 
   const resizeImage = (file) => {
     return new Promise((resolve) => {
@@ -45,7 +68,6 @@ export default function Home() {
     setImage(URL.createObjectURL(file));
     setLoading(true);
     setResult("");
-    setInfo("");
 
     const compressed = await resizeImage(file);
 
@@ -65,10 +87,8 @@ export default function Home() {
       const data = await res.json();
 
       if (data.top) {
-        const clean = data.top.toLowerCase();
-        setResult("♻️ " + clean.replace("_", " ").toUpperCase());
+        setResult(data.top.toUpperCase());
         setConfidence((data.confidence * 100).toFixed(2));
-        setInfo(wasteInfo[clean]);
       } else {
         setResult("Unable to classify");
       }
@@ -82,75 +102,100 @@ export default function Home() {
   return (
     <>
       <style>{`
-        body { margin: 0; font-family: Inter, sans-serif; }
-
-        @keyframes gradientMove {
-          0% { background-position: 0% 50% }
-          50% { background-position: 100% 50% }
-          100% { background-position: 0% 50% }
-        }
+        body { margin:0; font-family:Inter, sans-serif; scroll-behavior:smooth; }
 
         @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(40px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {opacity:0; transform:translateY(40px);}
+          to {opacity:1; transform:translateY(0);}
+        }
+
+        @keyframes gradientMove {
+          0% {background-position:0% 50%}
+          50% {background-position:100% 50%}
+          100% {background-position:0% 50%}
         }
       `}</style>
 
+      {/* BACKGROUND */}
       <div style={styles.bg}></div>
 
       {/* HERO */}
-      {!started && (
-        <div style={styles.hero}>
-          <h1 style={styles.heroTitle}>♻️ Waste Classifier AI</h1>
-          <p style={styles.heroSub}>
-            Intelligent Waste Detection & Sustainable Disposal Guidance
-          </p>
+      <div style={styles.hero}>
+        <h1 style={styles.heroTitle}>♻️ Waste Classifier AI</h1>
+        <p style={styles.heroSub}>
+          Smart Waste Detection & Sustainable Future
+        </p>
 
-          <button style={styles.startBtn} onClick={() => setStarted(true)}>
-            🚀 Start Classifying
+        <div style={styles.buttons}>
+          <button onClick={() => descRef.current.scrollIntoView()}>
+            📘 Description
+          </button>
+          <button onClick={() => classifyRef.current.scrollIntoView()}>
+            🚀 Classification
           </button>
         </div>
-      )}
+      </div>
 
-      {/* MAIN APP */}
-      {started && (
-        <div style={styles.container}>
-          {/* LEFT */}
-          <div style={styles.card}>
-            <h2>Upload Waste Image</h2>
+      {/* DESCRIPTION SECTION */}
+      <div ref={descRef} style={styles.section}>
+        <h2>📘 Project Description</h2>
+        <p style={styles.text}>
+          This AI system uses a trained deep learning model to classify waste
+          into categories such as plastic, paper, metal, glass, and more. The
+          model is trained on thousands of labeled images and achieves high
+          accuracy in real-world scenarios.
+        </p>
 
-            <label style={styles.upload}>
-              <input type="file" hidden onChange={handleUpload} />
-              ⬆ Upload
-            </label>
+        <h3>Waste Categories</h3>
 
-            {image && <img src={image} style={styles.image} />}
-
-            {loading && <p>🔄 Analyzing...</p>}
-
-            {result && !loading && (
-              <>
-                <h2>{result}</h2>
-                <p>Confidence: {confidence}%</p>
-
-                <div style={styles.bar}>
-                  <div
-                    style={{ ...styles.fill, width: `${confidence}%` }}
-                  ></div>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* RIGHT */}
-          {info && (
-            <div style={styles.info}>
-              <h3>🌱 Disposal Guide</h3>
-              <p style={{ whiteSpace: "pre-line" }}>{info}</p>
+        <div style={styles.grid}>
+          {wasteTypes.map((item, i) => (
+            <div key={i} style={styles.card}>
+              <img src={item.img} style={styles.cardImg} />
+              <h4>{item.name}</h4>
+              <p>{item.desc}</p>
             </div>
-          )}
+          ))}
         </div>
-      )}
+
+        <button
+          style={styles.bottomBtn}
+          onClick={() => classifyRef.current.scrollIntoView()}
+        >
+          🚀 Go to Classification
+        </button>
+      </div>
+
+      {/* CLASSIFICATION SECTION */}
+      <div ref={classifyRef} style={styles.section}>
+        <h2>🔍 Classification Model</h2>
+
+        <label style={styles.upload}>
+          <input type="file" hidden onChange={handleUpload} />
+          Upload Image
+        </label>
+
+        {image && <img src={image} style={styles.image} />}
+
+        {loading && <p>Analyzing...</p>}
+
+        {result && !loading && (
+          <>
+            <h2>{result}</h2>
+            <p>Confidence: {confidence}%</p>
+
+            <div style={styles.bar}>
+              <div
+                style={{ ...styles.fill, width: `${confidence}%` }}
+              ></div>
+            </div>
+          </>
+        )}
+      </div>
+
+      <footer style={styles.footer}>
+        ⚡ Built by Aarush • Denisha • Dhairya • Gayatri • Zeel
+      </footer>
     </>
   );
 }
@@ -161,7 +206,7 @@ const styles = {
     width: "100%",
     height: "100%",
     background:
-      "linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #00c9ff)",
+      "linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#00c9ff)",
     backgroundSize: "400% 400%",
     animation: "gradientMove 15s infinite",
     zIndex: -1,
@@ -173,8 +218,8 @@ const styles = {
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    textAlign: "center",
     color: "white",
+    textAlign: "center",
     animation: "fadeUp 1s ease",
   },
 
@@ -188,52 +233,61 @@ const styles = {
     marginBottom: "20px",
   },
 
-  startBtn: {
-    padding: "14px 30px",
-    borderRadius: "10px",
-    border: "none",
-    background: "#00ffcc",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
-
-  container: {
+  buttons: {
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "30px",
-    height: "100vh",
-    color: "white",
+    gap: "20px",
   },
 
-  card: {
-    padding: "30px",
-    borderRadius: "20px",
-    background: "rgba(255,255,255,0.08)",
-    backdropFilter: "blur(20px)",
-    width: "350px",
+  section: {
+    padding: "60px 10%",
+    color: "white",
     textAlign: "center",
   },
 
-  info: {
-    width: "280px",
-    padding: "25px",
-    borderRadius: "20px",
-    background: "rgba(0,255,200,0.1)",
-    backdropFilter: "blur(15px)",
+  text: {
+    maxWidth: "700px",
+    margin: "auto",
+    opacity: 0.8,
+  },
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
+    gap: "20px",
+    marginTop: "30px",
+  },
+
+  card: {
+    background: "rgba(255,255,255,0.08)",
+    padding: "15px",
+    borderRadius: "15px",
+    backdropFilter: "blur(10px)",
+  },
+
+  cardImg: {
+    width: "100%",
+    borderRadius: "10px",
+  },
+
+  bottomBtn: {
+    marginTop: "30px",
+    padding: "12px 25px",
+    background: "#00ffcc",
+    borderRadius: "10px",
+    border: "none",
+    cursor: "pointer",
   },
 
   upload: {
     padding: "10px 20px",
     background: "#00ffcc",
-    color: "#000",
-    borderRadius: "8px",
+    borderRadius: "10px",
     cursor: "pointer",
   },
 
   image: {
-    width: "100%",
-    marginTop: "15px",
+    width: "300px",
+    marginTop: "20px",
     borderRadius: "15px",
   },
 
@@ -247,5 +301,12 @@ const styles = {
   fill: {
     height: "100%",
     background: "#00ffcc",
+  },
+
+  footer: {
+    textAlign: "center",
+    padding: "20px",
+    color: "white",
+    opacity: 0.5,
   },
 };
